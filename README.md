@@ -4,7 +4,7 @@
 ## Description
 
 Work-in-progress to opensource stacks on chain.
-Nestjs app that connects to the stacks blockchain DB. (read more here)[https://docs.hiro.so/get-started/running-api-node]
+Nestjs app that connects to the stacks blockchain DB. [read more here](https://docs.hiro.so/get-started/running-api-node)
 
 ## Installation
 
