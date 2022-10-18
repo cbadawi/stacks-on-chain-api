@@ -7,10 +7,7 @@ import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class NftService {
-  constructor(
-    private prisma: PrismaService,
-    private blocksService: BlocksService,
-  ) {}
+  constructor(private prisma: PrismaService) {}
 
   async nft(id: string): Promise<Nft> {
     const filter = buildNftFilter(id);

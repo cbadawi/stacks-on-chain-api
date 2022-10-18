@@ -29,7 +29,6 @@ export class NftController {
     @Param('id') id: string,
     @Query() query: { include: string },
   ): Promise<NftWrapper> {
-    const include = query?.include;
     const nft = await this.nftService.nft(id);
     return { nft };
   }
