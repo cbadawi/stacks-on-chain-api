@@ -4,11 +4,15 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from './prisma/prisma.module';
 import configuration from './config/configuration';
+import { BlocksModule } from './blocks/blocks.module';
+import { NftModule } from './nft/nft.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true, load: [configuration] }),
     PrismaModule,
+    BlocksModule,
+    NftModule,
   ],
   controllers: [AppController],
   providers: [AppService],

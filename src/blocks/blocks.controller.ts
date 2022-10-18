@@ -7,6 +7,6 @@ export class BlocksController {
 
   @Get('/tip')
   async getBlocks() {
-    return { tipHeight: await this.blocksService.getTipHeight() };
+    return { tip: await this.blocksService.getTipHeight() };
   }
 }

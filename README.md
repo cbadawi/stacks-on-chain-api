@@ -4,13 +4,14 @@
 
 ## Description
 
-Work-in-progress to opensource stacks on chain.
-Nestjs app that connects to the stacks blockchain DB. [read more here](https://docs.hiro.so/get-started/running-api-node)
+Work-in-progress to opensource stacks on chain. A Nestjs app that reads from a stacks blockchain postgres database.
 
 ## Installation
 
 ```bash
 $ yarn
+$ yarn prisma migrate resolve --applied "20220914034633_initial_migration"
+$ yarn prisma generate && yarn prisma migrate deploy
 ```
 
 ## Running the app
