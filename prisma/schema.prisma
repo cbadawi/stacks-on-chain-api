@@ -569,3 +569,77 @@ model nftCustody {
   @@id([asset_identifier, value])
   @@map("nft_custody")
 }
+
+model listEvents {
+  block_height                Int
+  burn_block_time             Int
+  tx_hash                     String
+  microblock_sequence         Int
+  tx_index                    Int
+  sender_address              String
+  contract_call_contract_id   String
+  contract_call_function_name String
+  contract_call_function_args Bytes
+  collection_contract_id      String
+  token_id                    BigInt
+  price                       BigInt
+
+  @@id([tx_hash])
+  @@map("list_events")
+
+  @@index([sender_address], map: "list_events_sender_address_index", type: Hash)
+  @@index([block_height(sort:Desc)], map: "list_events_block_height_index")
+  @@index([collection_contract_id, token_id], map: "list_events_collection_index")
+}
+
+model unListEvents {
+  block_height                Int
+  burn_block_time             Int
+  tx_hash                     String
+  microblock_sequence         Int
+  tx_index                    Int
+  sender_address              String
+  contract_call_contract_id   String
+  contract_call_function_name String
+  contract_call_function_args Bytes
+  collection_contract_id      String
+  token_id                    BigInt
+
+  @@id([tx_hash])
+  @@map("unlist_events")
+
+  @@index([sender_address], map: "unlist_events_sender_address_index", type: Hash)
+  @@index([block_height(sort:Desc)], map: "unlist_events_block_height_index")
+  @@index([collection_contract_id, token_id], map: "unlist_events_collection_index")
+}
+
+model changePriceEvents {
+  block_height                Int
+  burn_block_time             Int
+  tx_hash                     String
+  microblock_sequence         Int
+  tx_index                    Int
+  sender_address              String
+  contract_call_contract_id   String
+  contract_call_function_name String
+  contract_call_function_args Bytes
+  collection_contract_id      String
+  token_id                    BigInt
+  price                       BigInt
+
+  @@id([tx_hash])
+  @@map("change_price_events")
+
+  @@index([sender_address], map: "change_price_events_sender_address_index", type: Hash)
+  @@index([block_height(sort:Desc)], map: "change_price_events_block_height_index")
+  @@index([collection_contract_id, token_id], map: "change_price_events_collection_index")
+}
+
+model nftFloor {
+  collection_contract_id      String
+  date                        DateTime @db.Date
+  floor                       BigInt
+
+  @@map("nft_floor")
+  @@id([collection_contract_id, date])
+}
