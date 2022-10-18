@@ -25,23 +25,35 @@ export class NftController {
   constructor(private nftService: NftService) {}
 
   @Get(':id')
-  async getNft(
+  async getNftHandler(
     @Param('id') id: string,
     @Query() query: { include: string },
   ): Promise<NftWrapper> {
-    const nft = await this.nftService.nft(id);
+    const nft = await this.nftService.getNft(id);
     return { nft };
   }
 
   @Get()
-  async getNfts(@Query() query: NftsQueryParams): Promise<NftsWrapper> {
+  async getNftsHandler(@Query() query: NftsQueryParams): Promise<NftsWrapper> {
     const { id, contractId, owner } = query;
-    const nfts = await this.nftService.nfts({
+    const nfts = await this.nftService.getNfts({
       id,
       contractId,
       owner,
     });
     if (nfts.length) return { nfts };
     return { nfts: [] };
+  }
+
+  @Get(':collectionContractId/floor')
+  async getFloorHandler(
+    @Param('collectionContractId') collectionContractId: string,
+  ) {
+    const floor = await this.nftService.getFloor(
+      collectionContractId.split('::')[0],
+    );
+
+    if (floor.length) return floor;
+    throw new NotFoundException();
   }
 }

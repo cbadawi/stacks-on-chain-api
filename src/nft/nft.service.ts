@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BlocksService } from '../blocks/blocks.service';
 import { Nft, NftsQueryParams } from '../common/interfaces/nft.interfaces';
 import buildNftFilter from '../common/utils/buildNftFilter';
 import { nftMapperWithEvents } from '../common/utils/nftMapper';
@@ -9,7 +8,7 @@ import { PrismaService } from '../prisma/prisma.service';
 export class NftService {
   constructor(private prisma: PrismaService) {}
 
-  async nft(id: string): Promise<Nft> {
+  async getNft(id: string): Promise<Nft> {
     const filter = buildNftFilter(id);
     return nftMapperWithEvents(
       await this.prisma.nftCustody.findFirstOrThrow({
@@ -21,7 +20,7 @@ export class NftService {
     );
   }
 
-  async nfts({ id, contractId, owner }: NftsQueryParams): Promise<Nft[]> {
+  async getNfts({ id, contractId, owner }: NftsQueryParams): Promise<Nft[]> {
     const filter = buildNftFilter(id, contractId, owner);
     return (
       await this.prisma.nftCustody.findMany({
@@ -31,5 +30,17 @@ export class NftService {
         },
       })
     ).map((item) => nftMapperWithEvents(item));
+  }
+
+  async getFloor(id: string): Promise<{ date: Date; floor: String }[]> {
+    const floor = await this.prisma.nftFloor.findMany({
+      select: { date: true, floor: true },
+      where: { collection_contract_id: id },
+    });
+
+    const json = floor.map((f) => {
+      return { floor: f.floor.toString(), date: f.date };
+    });
+    return json;
   }
 }

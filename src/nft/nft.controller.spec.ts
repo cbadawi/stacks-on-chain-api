@@ -8,7 +8,7 @@ describe('NftController', () => {
   let service: NftService;
 
   const mockData = {
-    nfts: [
+    getNfts: [
       {
         id: 'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys::bitcoin-monkeys:3',
         assetId:
@@ -39,8 +39,8 @@ describe('NftController', () => {
         {
           provide: NftService,
           useValue: {
-            nft: jest.fn().mockResolvedValue(mockData.nfts[0]),
-            nfts: jest.fn().mockResolvedValue(mockData.nfts),
+            getNft: jest.fn().mockResolvedValue(mockData.getNfts[0]),
+            getNfts: jest.fn().mockResolvedValue(mockData.getNfts),
           },
         },
       ],
@@ -57,31 +57,40 @@ describe('NftController', () => {
   describe('get nft', () => {
     it('should get an nft', async () => {
       await expect(
-        controller.getNft(
+        controller.getNftHandler(
           'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys::bitcoin-monkeys:3',
           undefined,
         ),
-      ).resolves.toEqual({ nft: mockData.nfts[0] });
+      ).resolves.toEqual({ nft: mockData.getNfts[0] });
     });
   });
 
   describe('get nfts', () => {
     it('should return nft array', async () => {
       await expect(
-        controller.getNfts({
+        controller.getNftsHandler({
           contractId:
             'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys::bitcoin-monkeys:3',
         }),
-      ).resolves.toEqual(mockData);
+      ).resolves.toEqual({ nfts: mockData.getNfts });
     });
 
     it('should return empty nft array', async () => {
-      service.nfts = jest.fn().mockResolvedValue([]);
+      service.getNfts = jest.fn().mockResolvedValue([]);
       await expect(
-        controller.getNfts({
+        controller.getNftsHandler({
           contractId: 'S',
         }),
       ).resolves.toEqual({ nfts: [] });
+    });
+  });
+
+  describe('get floor', () => {
+    it('should throw NotFoundException', async () => {
+      service.getFloor = jest.fn().mockResolvedValue([]);
+      await expect(controller.getFloorHandler('S')).rejects.toThrowError(
+        new NotFoundException(),
+      );
     });
   });
 });

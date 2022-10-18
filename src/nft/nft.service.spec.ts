@@ -128,7 +128,7 @@ describe('NftService', () => {
   describe('nft', () => {
     it('should return mapped nft', async () => {
       expect(
-        await nftService.nft(
+        await nftService.getNft(
           'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys::bitcoin-monkeys:3',
         ),
       ).toStrictEqual(mockMappedData[0]);
@@ -138,7 +138,7 @@ describe('NftService', () => {
   describe('nfts', () => {
     it('should return mapped nft array filtered by contract ID', async () => {
       expect(
-        await nftService.nfts({
+        await nftService.getNfts({
           contractId:
             'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys',
         }),
@@ -147,7 +147,7 @@ describe('NftService', () => {
 
     it('should return mapped nft array filtered by Fully Qualified ID', async () => {
       expect(
-        await nftService.nfts({
+        await nftService.getNfts({
           id: 'SP1K1A1PMGW2ZJCNF46NWZWHG8TS1D23EGH1KNK60.boom-nfts::boom:9',
         }),
       ).toStrictEqual([mockMappedData[2]]);
@@ -155,7 +155,7 @@ describe('NftService', () => {
 
     it('should return mapped nft array filtered by owner', async () => {
       expect(
-        await nftService.nfts({
+        await nftService.getNfts({
           owner: 'SP1XPG9QFX5M95G36SGN9R8YJ4KJ0JB7ZXNH89999',
         }),
       ).toStrictEqual([mockMappedData[2]]);
