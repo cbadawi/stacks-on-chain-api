@@ -28,7 +28,7 @@ describe('BlocksController', () => {
 
   describe('getBlocks', () => {
     it('should return maxBlock', async () => {
-      expect(await controller.getBlocks()).toStrictEqual({ tipHeight: 100 });
+      expect(await controller.getBlocks()).toStrictEqual({ tip: 100 });
     });
   });
 });
