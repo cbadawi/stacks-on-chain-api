@@ -4,7 +4,7 @@
 
 ## Description
 
-_Work-in-progress_ to opensource stacks on chain. A Nestjs app that reads from a stacks blockchain indexed in a postgres database.
+_Work-in-progress_ to opensource [stacks on chain](https://stacksonchain.com/). A Nestjs app that reads from a stacks blockchain indexed in a postgres database.
 
 ## Installation
 
