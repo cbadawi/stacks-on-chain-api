@@ -4,6 +4,7 @@ import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.int
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { PrismaService } from './prisma/prisma.service';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 const corsOptions: CorsOptions = {
   origin: '*',
@@ -18,6 +19,18 @@ async function bootstrap() {
 
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
+
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('Stacks on Chain API')
+    .setDescription('DEFI & NFT Analytics.')
+    .setVersion('1.0')
+    .addTag('Nfts')
+    .addTag('Blocks')
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig, {
+    ignoreGlobalPrefix: true,
+  });
+  SwaggerModule.setup(`/v1/api-docs`, app, document);
 
   app.setGlobalPrefix('api');
   app.useGlobalPipes(

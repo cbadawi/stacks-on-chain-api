@@ -3,7 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { Buffer } from 'buffer';
 import { NftService } from './nft.service';
 import tokenIdToBuffer from '../common/utils/tokenIdToBuffer';
-import { nftFilter } from '../common/interfaces/nft.interfaces';
+import { nftFilter } from './interfaces/nft.interfaces';
 import { BlocksService } from '../blocks/blocks.service';
 
 describe('NftService', () => {

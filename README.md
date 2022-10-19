@@ -4,7 +4,7 @@
 
 ## Description
 
-Work-in-progress to opensource stacks on chain. A Nestjs app that reads from a stacks blockchain postgres database.
+_Work-in-progress_ to opensource stacks on chain. A Nestjs app that reads from a stacks blockchain indexed in a postgres database.
 
 ## Installation
 
@@ -26,3 +26,7 @@ $ yarn start:dev
 # production mode
 $ yarn start:prod
 ```
+
+## Documentation
+
+After running the app, visit http://localhost:8080/v1/api-docs.
