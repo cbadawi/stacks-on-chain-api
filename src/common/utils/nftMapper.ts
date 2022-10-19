@@ -1,6 +1,6 @@
 import { nftCustody, Prisma } from '@prisma/client';
-import { nftCustodyWithEvents } from '../../common/interfaces/nft.interfaces';
-import { Nft } from '../../common/interfaces/nft.interfaces';
+import { nftCustodyWithEvents } from '../../nft/interfaces/nft.interfaces';
+import { Nft } from '../../nft/interfaces/nft.interfaces';
 
 export function nftMapperWithEvents(nft: nftCustodyWithEvents): Nft {
   let mapped = nftMapper(nft as nftCustody);

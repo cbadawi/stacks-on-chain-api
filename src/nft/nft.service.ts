@@ -1,5 +1,5 @@
-import { Injectable } from '@nestjs/common';
-import { Nft, NftsQueryParams } from '../common/interfaces/nft.interfaces';
+import { Injectable, UseFilters } from '@nestjs/common';
+import { FloorPrice, Nft, NftsQueryParams } from './interfaces/nft.interfaces';
 import buildNftFilter from '../common/utils/buildNftFilter';
 import { nftMapperWithEvents } from '../common/utils/nftMapper';
 import { PrismaService } from '../prisma/prisma.service';
@@ -32,7 +32,7 @@ export class NftService {
     ).map((item) => nftMapperWithEvents(item));
   }
 
-  async getFloor(id: string): Promise<{ date: Date; floor: String }[]> {
+  async getFloor(id: string): Promise<FloorPrice[]> {
     const floor = await this.prisma.nftFloor.findMany({
       select: { date: true, floor: true },
       where: { collection_contract_id: id },

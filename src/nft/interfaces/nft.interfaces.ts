@@ -1,12 +1,26 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Prisma } from '@prisma/client';
+import { IsOptional } from 'class-validator';
 
-export interface NftWrapper {
+export class NftWrapper {
   nft: Nft;
 }
 
-export interface NftsWrapper {
+export class NftsWrapper {
   nfts: Nft[];
 }
+
+export class FloorWrapper {
+  floor: FloorPrice[];
+}
+
+export class FloorPrice {
+  date: Date;
+  floor: string;
+  @IsOptional()
+  contractId?: string;
+}
+
 interface idOrContractFilter {
   asset_identifier: string | { contains?: string };
   value?: Buffer;
@@ -19,7 +33,11 @@ export interface nftFilter {
   }[];
 }
 
-export interface Nft {
+export class Nft {
+  @ApiProperty({
+    type: String,
+    description: 'This is a required property',
+  })
   id: string; // fully qualified token id
   assetId: string;
   contractId: string;
@@ -30,7 +48,7 @@ export interface Nft {
   events?: NftEvent[];
 }
 
-export interface NftEvent {
+export class NftEvent {
   txId: string;
   block: number;
   sender?: string | null;
@@ -38,9 +56,12 @@ export interface NftEvent {
   type: 'transfer' | 'mint' | 'burn';
 }
 
-export interface NftsQueryParams {
+export class NftsQueryParams {
+  @IsOptional()
   id?: string;
+  @IsOptional()
   contractId?: string;
+  @IsOptional()
   owner?: string;
 }
 

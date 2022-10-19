@@ -59,7 +59,6 @@ describe('NftController', () => {
       await expect(
         controller.getNftHandler(
           'SP2KAF9RF86PVX3NEE27DFV1CQX0T4WGR41X3S45C.bitcoin-monkeys::bitcoin-monkeys:3',
-          undefined,
         ),
       ).resolves.toEqual({ nft: mockData.getNfts[0] });
     });

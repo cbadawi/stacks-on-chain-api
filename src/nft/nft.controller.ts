@@ -15,27 +15,31 @@ import {
   NftsQueryParams,
   NftsWrapper,
   NftWrapper,
-} from '../common/interfaces/nft.interfaces';
+  FloorWrapper,
+} from './interfaces/nft.interfaces';
 import { NftService } from './nft.service';
+import { ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { NftsValidationPipe } from './pipes/NftsValidation.pipe';
 
 @UseFilters(NotFoundExceptionFilter, BadRequestExceptionFilter)
 @Controller({ path: 'nfts', version: '1' })
+@ApiTags('Nfts')
 export class NftController {
   constructor(private nftService: NftService) {}
 
   @Get(':id')
-  async getNftHandler(
-    @Param('id') id: string,
-    @Query() query: { include: string },
-  ): Promise<NftWrapper> {
+  @UsePipes(NftsValidationPipe)
+  async getNftHandler(@Param('id') id: string): Promise<NftWrapper> {
     const nft = await this.nftService.getNft(id);
     return { nft };
   }
 
   @Get()
-  async getNftsHandler(@Query() query: NftsQueryParams): Promise<NftsWrapper> {
-    const { id, contractId, owner } = query;
+  @UsePipes(NftsValidationPipe)
+  async getNftsHandler(
+    @Query() searchParams: NftsQueryParams,
+  ): Promise<NftsWrapper> {
+    const { id, contractId, owner } = searchParams;
     const nfts = await this.nftService.getNfts({
       id,
       contractId,
@@ -48,12 +52,12 @@ export class NftController {
   @Get(':collectionContractId/floor')
   async getFloorHandler(
     @Param('collectionContractId') collectionContractId: string,
-  ) {
+  ): Promise<FloorWrapper> {
     const floor = await this.nftService.getFloor(
       collectionContractId.split('::')[0],
     );
 
-    if (floor.length) return floor;
+    if (floor.length) return { floor };
     throw new NotFoundException();
   }
 }
