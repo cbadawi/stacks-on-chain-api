@@ -13,8 +13,7 @@ import {
 } from './schemas/balances.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
-import { BalancesDto } from './dto/balances.dto';
-import { getFunctionArgs } from 'src/common/utils/functionArgs';
+import { TransactionsService } from '../transactions/transactions.service';
 
 export interface poolBalances {
   'balance-x': bigint;
@@ -27,6 +26,7 @@ export class DefiService implements OnModuleInit {
     private configService: ConfigService,
     private blockService: BlocksService,
     private prisma: PrismaService,
+    private transactionsService: TransactionsService,
     @InjectModel(PoolBalanceAtDate.name)
     private readonly balancesModel: Model<PoolBalancesDocument>,
   ) {}
@@ -35,6 +35,9 @@ export class DefiService implements OnModuleInit {
     'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.fwp-wstx-wbtc-50-50-v1-01',
     'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.fwp-wstx-alex-50-50-v1-01',
   ];
+
+  REWARD_TOKEN =
+    'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex';
 
   async onModuleInit() {
     const NODE_ENV = this.configService.get<string>('NODE_ENV');
@@ -69,16 +72,74 @@ export class DefiService implements OnModuleInit {
     return { history };
   }
 
-  async getRewards(addressesArray: string[]) {
-    const rewards = await this.prisma.defiFarmingHistory.findMany({
-      where: {
-        address: { in: addressesArray },
-        trait_reference: { in: this.VALID_POOL_TRAITS },
-        contract_call_function_name: 'claim-staking-reward',
-        asset_identifier:
-          'SP3K8BC0PPEVCV7NZ6QSRWPQ2JE9E5B6N3PA0KBR9.age000-governance-token::alex',
-      },
+  async getActiveFarms(addressesArray: string[]) {
+    // get staking period length
+    const history = (await this.getHistory(addressesArray))?.history;
+    if (!history.length) return [];
+
+    const stakingHistory = history.filter(
+      (h) => h.contract_call_function_name === 'stake-tokens',
+    );
+
+    const helper = poolHelper.map((pool) => ({
+      ...pool,
+      tokenXImage: tokensHelper.find((t) => t.token === pool.tokenX)?.image,
+      tokenYImage: tokensHelper.find((t) => t.token === pool.tokenY)?.image,
+    }));
+
+    // get staking period length
+    const txHashes = stakingHistory.map((h) => h['tx_hash']);
+    const decodedTx = (
+      await this.transactionsService.getDecodedFunctionArgs(
+        txHashes,
+        'lock-period',
+      )
+    ).decodedTxArgs;
+
+    const txsLockPeriod = decodedTx.map((tx) => {
+      return {
+        txHash: tx.tx_id.toString(),
+        lockPeriod: parseInt(tx.args[2].repr.replace('u', '')),
+      };
     });
+    const tipHeight = await this.blockService.getTipHeight();
+
+    const stakingDetails = stakingHistory.map((stake) => ({
+      ...stake,
+      ...txsLockPeriod.find((p) => stake['tx_hash'] === p['tx_hash']),
+      ...helper.find(
+        (b) =>
+          b.trait === stake['trait_reference'] ||
+          `'`.concat(b.trait) === stake['trait_reference'],
+      ),
+    }));
+
+    const activePools = stakingDetails
+      .map((stake) => {
+        const blocksTillFirstCycle =
+          (stake['block_height'] - stake.genesisBlock) % stake.blocksInCycle;
+        const nextCycleStartBlock =
+          blocksTillFirstCycle + stake['block_height'];
+        return {
+          ...stake,
+          cycle: Math.floor(
+            (tipHeight - nextCycleStartBlock) / stake.blocksInCycle,
+          ),
+        };
+      })
+      .filter((stake) => stake.cycle <= stake.lockPeriod);
+
+    return { activePools };
+  }
+
+  async getRewards(addressesArray: string[]) {
+    const history = (await this.getHistory(addressesArray))?.history;
+
+    const rewards = history.filter(
+      (h) =>
+        h.contract_call_function_name === 'claim-staking-reward' &&
+        h.asset_identifier === this.REWARD_TOKEN,
+    );
 
     return { rewards };
   }
