@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import commaSeperatedToArray from 'src/common/utils/commaSeperatedToArray';
+import commaSeperatedToArray from '../common/utils/commaSeperatedToArray';
 import { DefiService } from './defi.service';
 
 @Controller({ path: 'defi', version: '1' })

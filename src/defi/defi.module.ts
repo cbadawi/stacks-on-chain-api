@@ -1,18 +1,22 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlocksService } from 'src/blocks/blocks.service';
+import { TransactionsService } from 'src/transactions/transactions.service';
+import { BlocksService } from '../blocks/blocks.service';
 import { DefiController } from './defi.controller';
 import { DefiService } from './defi.service';
-import { PoolBalance, PoolBalanceSchema } from './schemas/balances.schema';
+import {
+  PoolBalanceAtDate,
+  PoolBalanceSchema,
+} from './schemas/balances.schema';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      { name: PoolBalance.name, schema: PoolBalanceSchema },
+      { name: PoolBalanceAtDate.name, schema: PoolBalanceSchema },
     ]),
   ],
   controllers: [DefiController],
-  providers: [DefiService, BlocksService],
+  providers: [DefiService, BlocksService, TransactionsService],
 })
 export class DefiModule {}

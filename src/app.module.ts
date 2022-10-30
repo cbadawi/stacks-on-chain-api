@@ -10,6 +10,7 @@ import { DefiModule } from './defi/defi.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { MongooseConfigService } from './config/MongooseConfigService';
 import { TasksModule } from './tasks/tasks.module';
+import { TransactionsModule } from './transactions/transactions.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { TasksModule } from './tasks/tasks.module';
       imports: [ConfigModule],
       useClass: MongooseConfigService,
     }),
+    TransactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
