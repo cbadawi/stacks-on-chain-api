@@ -1,4 +1,10 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Param,
+  Query,
+} from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import commaSeperatedToArray from '../common/utils/commaSeperatedToArray';
 import { DefiService } from './defi.service';
@@ -8,8 +14,8 @@ import { DefiService } from './defi.service';
 export class DefiController {
   constructor(private defiService: DefiService) {}
 
-  @Get('/history')
-  async getHistoryHandler(addresses: string) {
+  @Get('/history/:addresses')
+  async getHistoryHandler(@Param('addresses') addresses: string) {
     const addressesArray = commaSeperatedToArray(addresses);
     const history = await this.defiService.getHistory(addressesArray);
     return { history };
