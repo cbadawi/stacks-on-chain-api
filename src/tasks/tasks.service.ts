@@ -2,20 +2,18 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Cron } from '@nestjs/schedule';
 import { Model } from 'mongoose';
-import { BlocksService } from 'src/blocks/blocks.service';
-import { poolHelper } from 'src/common/helpers/defi-helpers';
-import { DefiService } from 'src/defi/defi.service';
+import { poolHelper } from '../common/helpers/defi-helpers';
+import { DefiService } from '../defi/defi.service';
 import {
   PoolBalanceAtDate,
   PoolBalancesDocument,
-} from 'src/defi/schemas/balances.schema';
+} from '../defi/schemas/balances.schema';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectModel(PoolBalanceAtDate.name)
     private readonly balancesModel: Model<PoolBalancesDocument>,
-    private blockService: BlocksService,
     private defiService: DefiService,
   ) {}
 
