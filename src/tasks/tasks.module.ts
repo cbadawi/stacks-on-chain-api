@@ -1,8 +1,8 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import {
-  DailyPoolBalances,
-  PoolBalanceSchema,
+  DailyPoolDetails,
+  PoolDetailsSchema,
 } from 'src/defi/schemas/balances.schema';
 import { TasksService } from './tasks.service';
 import { AppModule } from 'src/app.module';
@@ -11,7 +11,7 @@ import { AppModule } from 'src/app.module';
   imports: [
     forwardRef(() => AppModule),
     MongooseModule.forFeature([
-      { name: DailyPoolBalances.name, schema: PoolBalanceSchema },
+      { name: DailyPoolDetails.name, schema: PoolDetailsSchema },
     ]),
   ],
   providers: [TasksService],

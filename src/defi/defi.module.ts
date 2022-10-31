@@ -6,16 +6,13 @@ import { TransactionsService } from 'src/transactions/transactions.service';
 import { BlocksService } from '../blocks/blocks.service';
 import { DefiController } from './defi.controller';
 import { DefiService } from './defi.service';
-import {
-  DailyPoolBalances,
-  PoolBalanceSchema,
-} from './schemas/balances.schema';
+import { DailyPoolDetails, PoolDetailsSchema } from './schemas/balances.schema';
 
 @Module({
   imports: [
     forwardRef(() => AppModule),
     MongooseModule.forFeature([
-      { name: DailyPoolBalances.name, schema: PoolBalanceSchema },
+      { name: DailyPoolDetails.name, schema: PoolDetailsSchema },
     ]),
   ],
   exports: [DefiService],

@@ -13,17 +13,13 @@ import { BlocksService } from '../blocks/blocks.service';
 import { ConfigService } from '@nestjs/config';
 import { poolHelper, tokensHelper } from '../common/helpers/defi-helpers';
 import {
-  DailyPoolBalances,
-  PoolBalancesDocument,
+  DailyPoolDetails,
+  PoolDetailsDocument,
 } from './schemas/balances.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TransactionsService } from '../transactions/transactions.service';
-
-export interface poolBalances {
-  'balance-x': bigint;
-  'balance-y': bigint;
-}
+import { poolBalances } from './interfaces/poolBalances';
 
 @Injectable()
 export class DefiService implements OnModuleInit {
@@ -32,8 +28,8 @@ export class DefiService implements OnModuleInit {
     private blockService: BlocksService,
     private prisma: PrismaService,
     private transactionsService: TransactionsService,
-    @InjectModel(DailyPoolBalances.name)
-    private readonly balancesModel: Model<PoolBalancesDocument>,
+    @InjectModel(DailyPoolDetails.name)
+    private readonly balancesModel: Model<PoolDetailsDocument>,
   ) {}
 
   VALID_POOL_TRAITS = [
@@ -54,13 +50,13 @@ export class DefiService implements OnModuleInit {
       (block) => !latestInsertedDate || latestInsertedDate < block.day,
     );
 
-    let balances: DailyPoolBalances[] = [];
+    let balances: DailyPoolDetails[] = [];
 
     await Promise.all(
       validBlocks.map(async (block) => {
-        const blockBalance = await this.getBlockPoolBalances(block);
-        if (blockBalance) balances.push(...blockBalance);
-        return blockBalance;
+        const traitDetails = await this.getAllTraitDetails(block);
+        if (traitDetails) balances.push(...traitDetails);
+        return traitDetails;
       }),
     );
     await this.balancesModel.insertMany(balances);
@@ -148,7 +144,7 @@ export class DefiService implements OnModuleInit {
     return { rewards };
   }
 
-  async getBlockPoolBalances(block: {
+  async getAllTraitDetails(block: {
     day: Date;
     blockHeight: number;
     indexBlockHash: Buffer;
@@ -158,18 +154,22 @@ export class DefiService implements OnModuleInit {
     const blockBalances = await Promise.all(
       this.VALID_POOL_TRAITS.map(async (trait) => {
         const helper = poolHelper.find((pool) => trait === pool.trait);
+
         if (!helper) throw new NotFoundException(trait);
+
         if (blockHeight >= helper.genesisBlock) {
-          const poolBalances = await this.getPoolBalances(
-            trait,
-            indexBlockHash,
-          );
-          if (poolBalances)
+          const poolDetails = await this.getPoolDetails(trait, indexBlockHash);
+          if (
+            poolDetails &&
+            poolDetails['balance-x'] &&
+            poolDetails.lpTokenSupply
+          )
             return {
               trait,
               date: block.day as Date,
-              balanceX: poolBalances['balance-x'].toString(),
-              balanceY: poolBalances['balance-y'].toString(),
+              balanceX: poolDetails['balance-x'].toString(),
+              balanceY: poolDetails['balance-y'].toString(),
+              lpTokenSupply: poolDetails.lpTokenSupply.toString(),
             };
         }
       }),
@@ -187,17 +187,15 @@ export class DefiService implements OnModuleInit {
     return { date: lastInsertedDate?.date };
   }
 
-  async getPoolBalances(
-    trait: string,
-    indexBlockHash?: Buffer,
-  ): Promise<poolBalances> {
+  async getPoolDetails(trait: string, indexBlockHash?: Buffer) {
     const network = new StacksMainnet({
       url: this.configService.get<string>('NODE_BASE_URL'),
     });
-    const functionName = 'get-balances';
+
+    const balancesFunctionName = 'get-balances';
+    const supplyFunctionName = 'get-total-supply';
 
     let tip: string;
-
     if (indexBlockHash) tip = indexBlockHash.toString('hex');
 
     const { contractId, tokenX, tokenY, weightX, weightY } = poolHelper.find(
@@ -205,6 +203,7 @@ export class DefiService implements OnModuleInit {
     );
 
     const [poolPrincipal, poolName] = contractId.split('.');
+    const [traitPrincipal, traitName] = trait.split('.');
     const [contractIdTokenX, assetX] = tokenX.split('::');
     const [contractIdTokenY, assetY] = tokenY.split('::');
     const [principalX, contractNameX] = contractIdTokenX.split('.');
@@ -217,12 +216,22 @@ export class DefiService implements OnModuleInit {
       uintCV(weightY),
     ];
     let balances: poolBalances;
+    let lpTokenSupply: bigint;
     try {
       balances = await fetchReadOnlyFunction({
         contractAddress: poolPrincipal,
         contractName: poolName,
-        functionName,
+        functionName: balancesFunctionName,
         functionArgs,
+        network,
+        tip,
+      });
+
+      lpTokenSupply = await fetchReadOnlyFunction({
+        contractAddress: traitPrincipal,
+        contractName: traitName,
+        functionName: supplyFunctionName,
+        functionArgs: [],
         network,
         tip,
       });
@@ -230,6 +239,6 @@ export class DefiService implements OnModuleInit {
       Logger.error(indexBlockHash, trait, err);
     }
 
-    return balances;
+    return { ...balances, lpTokenSupply };
   }
 }
