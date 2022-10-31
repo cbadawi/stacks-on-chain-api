@@ -15,11 +15,13 @@ import { poolHelper, tokensHelper } from '../common/helpers/defi-helpers';
 import {
   DailyPoolDetails,
   PoolDetailsDocument,
-} from './schemas/balances.schema';
+} from './schemas/poolDetails.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TransactionsService } from '../transactions/transactions.service';
 import { poolBalances } from './interfaces/poolBalances';
+import BigNumber from 'bignumber.js';
+import { convertToUsd } from 'src/common/utils/prices';
 
 @Injectable()
 export class DefiService implements OnModuleInit {
@@ -71,6 +73,28 @@ export class DefiService implements OnModuleInit {
     });
 
     return { history };
+  }
+
+  async getLpTokenPrice(lpToken: string) {
+    const tokenHelper = poolHelper.find(
+      (p) => p.lpToken.includes(lpToken) || lpToken.includes(p.lpToken),
+    );
+
+    const balances = await this.balancesModel
+      .find({ trait: tokenHelper.trait })
+      .exec();
+
+    const prices = balances.map((balance) => ({
+      date: balance.date,
+      priceInX: BigNumber(balance.balanceX)
+        .multipliedBy(BigNumber(2))
+        .dividedBy(BigNumber(balance.lpTokenSupply)),
+      priceInY: BigNumber(balance.balanceY)
+        .multipliedBy(BigNumber(2))
+        .dividedBy(BigNumber(balance.lpTokenSupply)),
+    }));
+
+    return prices;
   }
 
   async getActiveFarms(addressesArray: string[]) {
@@ -129,7 +153,7 @@ export class DefiService implements OnModuleInit {
       })
       .filter((stake) => stake.cycle <= stake.lockPeriod);
 
-    return { activePools };
+    return activePools;
   }
 
   async getRewards(addressesArray: string[]) {
@@ -155,7 +179,10 @@ export class DefiService implements OnModuleInit {
       this.VALID_POOL_TRAITS.map(async (trait) => {
         const helper = poolHelper.find((pool) => trait === pool.trait);
 
-        if (!helper) throw new NotFoundException(trait);
+        if (!helper)
+          throw new NotFoundException(
+            'Pool Trait not found within valid traits.',
+          );
 
         if (blockHeight >= helper.genesisBlock) {
           const poolDetails = await this.getPoolDetails(trait, indexBlockHash);
