@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -18,7 +18,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     PrismaModule,
     BlocksModule,
     NftModule,
-    DefiModule,
+    forwardRef(() => DefiModule),
     TasksModule,
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,6 +26,7 @@ import { TransactionsModule } from './transactions/transactions.module';
     }),
     TransactionsModule,
   ],
+  exports: [BlocksModule, NftModule, DefiModule, TransactionsModule],
   controllers: [AppController],
   providers: [AppService],
 })

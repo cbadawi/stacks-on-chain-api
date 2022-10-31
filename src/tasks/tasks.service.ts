@@ -5,14 +5,14 @@ import { Model } from 'mongoose';
 import { poolHelper } from '../common/helpers/defi-helpers';
 import { DefiService } from '../defi/defi.service';
 import {
-  PoolBalanceAtDate,
+  DailyPoolBalances,
   PoolBalancesDocument,
 } from '../defi/schemas/balances.schema';
 
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectModel(PoolBalanceAtDate.name)
+    @InjectModel(DailyPoolBalances.name)
     private readonly balancesModel: Model<PoolBalancesDocument>,
     private defiService: DefiService,
   ) {}
@@ -23,7 +23,7 @@ export class TasksService {
     poolTaits.forEach(async (trait) => {
       const newBalances = await this.defiService.getPoolBalances(trait);
 
-      const balancesDoc: PoolBalanceAtDate = {
+      const balancesDoc: DailyPoolBalances = {
         trait,
         date: new Date(),
         balanceX: newBalances['balance-x'].toString(),

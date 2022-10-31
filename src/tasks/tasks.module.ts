@@ -1,21 +1,19 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BlocksModule } from '../blocks/blocks.module';
-import { DefiService } from '../defi/defi.service';
 import {
-  PoolBalanceAtDate,
+  DailyPoolBalances,
   PoolBalanceSchema,
 } from 'src/defi/schemas/balances.schema';
 import { TasksService } from './tasks.service';
-import { BlocksService } from '../blocks/blocks.service';
-import { TransactionsService } from '../transactions/transactions.service';
+import { AppModule } from 'src/app.module';
 
 @Module({
   imports: [
+    forwardRef(() => AppModule),
     MongooseModule.forFeature([
-      { name: PoolBalanceAtDate.name, schema: PoolBalanceSchema },
+      { name: DailyPoolBalances.name, schema: PoolBalanceSchema },
     ]),
   ],
-  providers: [TasksService, BlocksService, TransactionsService, DefiService],
+  providers: [TasksService],
 })
 export class TasksModule {}

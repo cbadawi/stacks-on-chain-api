@@ -19,7 +19,6 @@ export class TransactionsService {
       return { ...tx, args };
     });
 
-    console.log(decodedTxArgs[0].args);
     return { decodedTxArgs };
   }
 }

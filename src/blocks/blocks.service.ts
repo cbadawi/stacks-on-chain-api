@@ -33,7 +33,7 @@ export class BlocksService {
       where canonical
       group by 1) as daily_blocks using (block_height)
     where b.canonical
-    order by 1 desc limit 30
+    order by 1 desc
     `) as { day: Date; block_height: number; index_block_hash: Buffer }[];
     return {
       blocks: blocks.map((block) => ({
