@@ -2,13 +2,18 @@ import 'cross-fetch/polyfill';
 import { contractPrincipalCV, uintCV } from 'micro-stacks/clarity';
 import { fetchReadOnlyFunction } from 'micro-stacks/api';
 import { StacksMainnet } from 'micro-stacks/network';
-import { Injectable, NotFoundException, OnModuleInit } from '@nestjs/common';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  OnModuleInit,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { BlocksService } from '../blocks/blocks.service';
 import { ConfigService } from '@nestjs/config';
 import { poolHelper, tokensHelper } from '../common/helpers/defi-helpers';
 import {
-  PoolBalanceAtDate,
+  DailyPoolBalances,
   PoolBalancesDocument,
 } from './schemas/balances.schema';
 import { Model } from 'mongoose';
@@ -27,7 +32,7 @@ export class DefiService implements OnModuleInit {
     private blockService: BlocksService,
     private prisma: PrismaService,
     private transactionsService: TransactionsService,
-    @InjectModel(PoolBalanceAtDate.name)
+    @InjectModel(DailyPoolBalances.name)
     private readonly balancesModel: Model<PoolBalancesDocument>,
   ) {}
 
@@ -49,16 +54,16 @@ export class DefiService implements OnModuleInit {
       (block) => !latestInsertedDate || latestInsertedDate < block.day,
     );
 
-    let balances: PoolBalanceAtDate[] = [];
+    let balances: DailyPoolBalances[] = [];
 
     await Promise.all(
       validBlocks.map(async (block) => {
         const blockBalance = await this.getBlockPoolBalances(block);
-        if (blockBalance) balances.push(...blockBalance.blockBalances);
+        if (blockBalance) balances.push(...blockBalance);
         return blockBalance;
       }),
     );
-    await this.balancesModel.insertMany(balances);
+    // await this.balancesModel.insertMany(balances);
   }
 
   async getHistory(addressesArray: string[]) {
@@ -144,9 +149,13 @@ export class DefiService implements OnModuleInit {
     return { rewards };
   }
 
-  async getBlockPoolBalances(block: { day: Date; blockHeight: number }) {
-    const blockHeight = block['block_height'];
-    const indexBlockHash = block['index_block_hash'];
+  async getBlockPoolBalances(block: {
+    day: Date;
+    blockHeight: number;
+    indexBlockHash: Buffer;
+  }) {
+    const blockHeight = block.blockHeight;
+    const indexBlockHash = block.indexBlockHash;
     const blockBalances = await Promise.all(
       this.VALID_POOL_TRAITS.map(async (trait) => {
         const helper = poolHelper.find((pool) => trait === pool.trait);
@@ -156,16 +165,19 @@ export class DefiService implements OnModuleInit {
             trait,
             indexBlockHash,
           );
-          return {
-            trait,
-            date: block.day as Date,
-            balanceX: poolBalances['balance-x'].toString(),
-            balanceY: poolBalances['balance-y'].toString(),
-          };
+          if (poolBalances)
+            return {
+              trait,
+              date: block.day as Date,
+              balanceX: poolBalances['balance-x'].toString(),
+              balanceY: poolBalances['balance-y'].toString(),
+            };
         }
       }),
     );
-    if (!blockBalances.includes(undefined)) return { blockBalances };
+    if (!blockBalances.includes(undefined) && blockBalances)
+      return blockBalances;
+    else return [];
   }
 
   async getLastBalancesDate() {
@@ -216,7 +228,7 @@ export class DefiService implements OnModuleInit {
         tip,
       });
     } catch (err) {
-      console.error(indexBlockHash, trait, err);
+      Logger.error(indexBlockHash, trait, err);
     }
 
     return balances;

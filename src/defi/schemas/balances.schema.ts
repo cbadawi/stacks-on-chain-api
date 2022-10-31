@@ -1,10 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type PoolBalancesDocument = PoolBalanceAtDate & Document;
+export type PoolBalancesDocument = DailyPoolBalances & Document;
 
 @Schema()
-export class PoolBalanceAtDate {
+export class DailyPoolBalances {
   @Prop()
   date: Date;
 
@@ -19,4 +19,4 @@ export class PoolBalanceAtDate {
 }
 
 export const PoolBalanceSchema =
-  SchemaFactory.createForClass(PoolBalanceAtDate);
+  SchemaFactory.createForClass(DailyPoolBalances);
