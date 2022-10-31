@@ -63,7 +63,7 @@ export class DefiService implements OnModuleInit {
         return blockBalance;
       }),
     );
-    // await this.balancesModel.insertMany(balances);
+    await this.balancesModel.insertMany(balances);
   }
 
   async getHistory(addressesArray: string[]) {
@@ -78,7 +78,6 @@ export class DefiService implements OnModuleInit {
   }
 
   async getActiveFarms(addressesArray: string[]) {
-    // get staking period length
     const history = (await this.getHistory(addressesArray))?.history;
     if (!history.length) return [];
 
