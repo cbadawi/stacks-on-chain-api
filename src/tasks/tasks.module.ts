@@ -3,7 +3,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import {
   DailyPoolDetails,
   PoolDetailsSchema,
-} from 'src/defi/schemas/balances.schema';
+} from 'src/defi/schemas/poolDetails.schema';
 import { TasksService } from './tasks.service';
 import { AppModule } from 'src/app.module';
 

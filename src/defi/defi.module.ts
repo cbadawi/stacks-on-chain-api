@@ -6,7 +6,10 @@ import { TransactionsService } from 'src/transactions/transactions.service';
 import { BlocksService } from '../blocks/blocks.service';
 import { DefiController } from './defi.controller';
 import { DefiService } from './defi.service';
-import { DailyPoolDetails, PoolDetailsSchema } from './schemas/balances.schema';
+import {
+  DailyPoolDetails,
+  PoolDetailsSchema,
+} from './schemas/poolDetails.schema';
 
 @Module({
   imports: [

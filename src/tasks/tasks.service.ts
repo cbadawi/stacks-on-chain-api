@@ -7,7 +7,7 @@ import { DefiService } from '../defi/defi.service';
 import {
   DailyPoolDetails,
   PoolDetailsDocument,
-} from '../defi/schemas/balances.schema';
+} from '../defi/schemas/poolDetails.schema';
 
 @Injectable()
 export class TasksService {
