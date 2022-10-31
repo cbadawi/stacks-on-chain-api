@@ -9,6 +9,8 @@ services:
       - MONGO_URL=$MONGO_URL
     ports:
       - '$PORT:8080'
+    depends_on:
+      - 'mongodb'
     networks:
       - stacksapi
   mongodb:
