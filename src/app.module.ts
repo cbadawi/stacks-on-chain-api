@@ -6,6 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import configuration from './config/configuration';
 import { BlocksModule } from './blocks/blocks.module';
 import { NftModule } from './nft/nft.module';
+import { MetadataModule } from './metadata/metadata.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { NftModule } from './nft/nft.module';
     PrismaModule,
     BlocksModule,
     NftModule,
+    MetadataModule,
   ],
   controllers: [AppController],
   providers: [AppService],
