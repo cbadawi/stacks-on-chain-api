@@ -643,3 +643,19 @@ model nftFloor {
   @@map("nft_floor")
   @@id([collection_contract_id, date])
 }
+
+model defiFarmingHistory {
+  address                     String
+  tx_hash                     String
+  block_height                Int
+  block_time                  DateTime
+  contract_call_contract_id   String
+  contract_call_function_name String
+  asset_identifier            String
+  trait_reference             String
+  amount                      BigInt
+  
+  @@map("defi_farming_history")
+  @@id([tx_hash])
+  @@index([address], map: "defi_farming_history_address_index", type: Hash)
+}

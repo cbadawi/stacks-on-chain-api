@@ -1,0 +1,27 @@
+version: '3.8'
+services:
+  api:
+    build: .
+    environment:
+      - DATABASE_URL=$DATABASE_URL
+      - NODE_BASE_URL=$NODE_BASE_URL
+      - PORT=$PORT
+      - MONGO_URL=$MONGO_URL
+    ports:
+      - '$PORT:8080'
+    depends_on:
+      - 'mongodb'
+    networks:
+      - stacksapi
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGODB_DATABASE="test"
+    ports:
+      - 27017:27017
+    volumes:
+      - .:/app
+    networks:
+      - stacksapi
+networks:
+  stacksapi:

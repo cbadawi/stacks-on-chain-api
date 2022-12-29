@@ -26,7 +26,9 @@ async function bootstrap() {
     .setVersion('1.0')
     .addTag('Nfts')
     .addTag('Blocks')
+    .addTag('Defi')
     .build();
+
   const document = SwaggerModule.createDocument(app, swaggerConfig, {
     ignoreGlobalPrefix: true,
   });
@@ -45,6 +47,6 @@ async function bootstrap() {
   });
 
   await app.listen(PORT);
-  console.log(`server started on port ${PORT}`);
+  console.log(`Application is running on: ${await app.getUrl()}`);
 }
 bootstrap();

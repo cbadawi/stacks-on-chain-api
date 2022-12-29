@@ -1,6 +1,6 @@
 import { Injectable, UseFilters } from '@nestjs/common';
 import { FloorPrice, Nft, NftsQueryParams } from './interfaces/nft.interfaces';
-import buildNftFilter from '../common/utils/buildNftFilter';
+import buildNftFilter from '../common/utils/builders/buildNftFilter';
 import { nftMapperWithEvents } from '../common/utils/nftMapper';
 import { PrismaService } from '../prisma/prisma.service';
 

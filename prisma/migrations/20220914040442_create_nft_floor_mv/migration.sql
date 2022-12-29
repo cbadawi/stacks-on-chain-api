@@ -114,4 +114,4 @@ create materialized view nft_floor as (
 
 CREATE UNIQUE INDEX nft_floor_collection_date_index ON nft_floor (collection_contract_id, date);
 
-COMMIT:
+COMMIT;

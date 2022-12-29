@@ -1,7 +1,7 @@
-import commaSeperatedToArray from './commaSeperatedToArray';
-import parseFullyQualifiedId from './parseFullyQualifiedId';
-import tokenIdToBuffer from './tokenIdToBuffer';
-import { nftFilter } from '../../nft/interfaces/nft.interfaces';
+import commaSeperatedToArray from '../commaSeperatedToArray';
+import parseFullyQualifiedId from '../parseFullyQualifiedId';
+import tokenIdToBuffer from '../tokenIdToBuffer';
+import { nftFilter } from '../../../nft/interfaces/nft.interfaces';
 
 export default function buildNftFilter(
   id?: string,
